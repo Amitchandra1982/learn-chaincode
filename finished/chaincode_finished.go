@@ -126,7 +126,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 	if res.Userid == userid{
 	   fmt.Println("The userid password matched: " +res.Userid + res.Password);
 	   }
-	fmt.Println("The value for Userid is: " +PassAsbytes);
+	fmt.Println("The value for Userid is: " +res.Userid + res.Password);
 	
 	return PassAsbytes, nil
 }
