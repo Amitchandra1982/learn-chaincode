@@ -23,7 +23,7 @@ import (
 	"errors"
 	"fmt"
 //	"strconv"
-//	"encoding/json"
+	"encoding/json"
 //	"time"
 //	"strings"
 
@@ -33,6 +33,12 @@ import (
 // SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
 }
+
+type Adminlogin struct{
+	Userid string `json:"userid"`					//User login for system Admin
+	Password string `json:"password"`
+}
+
 // ============================================================================================================================
 // Main
 // ============================================================================================================================
@@ -48,15 +54,16 @@ func main() {
 // ============================================================================================================================
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	var err error
-	var name, value string
 
-	//if len(args) != 1 {
-		//return nil, errors.New("Incorrect number of arguments. Expecting 1")
-	//}
+	if len(args) != 2 {
+	   return nil, errors.New("Incorrect number of arguments. Expecting 1")
+	}
     //Write the User Id "mail Id" arg[0] and password arg[1]
-	name = args[0]															//rename for funsies
-	value = args[1]
-	err = stub.PutState(name, []byte(value))								//write the variable into the chaincode state
+	userid := args[0]															//argument for UserID
+	password := args[1]  	//argument for password
+	str := `{"userid": "` + userid+ `", "password": "` + password + `"}`
+	
+	err = stub.PutState(userid, []byte(str))								//Put the userid and password in blockchain
 	
 	if err != nil {
 		return nil, err
@@ -99,19 +106,27 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 // read - query function to read key/value pair
 //===============================================================================================================================
 func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var key, jsonResp string
 	var err error
 
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the key to query")
 	}
 
-	key = args[0]
-	PassAsbytes, err := stub.GetState(key)
+	userid := args[0]
+	PassAsbytes, err := stub.GetState(userid)
+	
 	if err != nil {
-		jsonResp = "{\"Error\":\"Failed to get state for " + key + "\"}"
+		jsonResp := "{\"Error\":\"Failed to get state for " + userid + "\"}"
 		return nil, errors.New(jsonResp)
 	}
-
+	
+	res := Adminlogin{}
+	json.Unmarshal(PassAsbytes,&res)
+	
+	if res.Userid == userid{
+	   fmt.Println("The userid password matched: " +res.Userid + res.Password);
+	   }
+	fmt.Println("The value for Userid is: " +PassAsbytes);
+	
 	return PassAsbytes, nil
 }
