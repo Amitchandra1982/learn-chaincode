@@ -124,9 +124,10 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 	json.Unmarshal(PassAsbytes,&res)
 	
 	if res.Userid == userid{
-	   fmt.Println("The userid password matched: " +res.Userid + res.Password);
+	   fmt.Println("Userid Password Matched: " +res.Userid + res.Password)
+	  }else {
+	   fmt.Println("Wrong ID Password: " +res.Userid + res.Password)
 	   }
-	fmt.Println("The value for Userid is: " +res.Userid + res.Password);
 	
 	return PassAsbytes, nil
 }
