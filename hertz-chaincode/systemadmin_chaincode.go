@@ -56,6 +56,20 @@ type Driver struct{
 	Adminemail string `json:"adminemail"`
 	Rejectreason string `json:"rejectreason"`
 	Anycomment string `json:"anycomment"`
+	Bookingid  string `json:"bookingid"`
+}
+
+type Bookcar struct{
+	Bookacarname string `json:"bookacarname"`
+	Bookacaremail string `json:"bookacaremail"`		
+	Bookacarclass string `json:"bookacarclass"`
+	Bookacarlocation string `json:"bookacarlocation"`
+	Bookacardroplocation string `json:"bookacardroplocation"`
+	Bookacarpickupdate string `json:"bookacarpickupdate"`
+	Bookacarpickuptime string `json:"bookacarpickuptime"`
+	Bookacardropoffdate string `json:"bookacardropoffdate"`
+	Bookacardropofftime string `json:"bookacardropofftime"`
+	Bookingid string `json:"bookingid"`
 }
 
 
@@ -179,7 +193,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.init_marble(stub, args)
 	} else if function == "signup_driver" {									//create a new marble
 		return t.signup_driver(stub, args)
-	} else if function == "set_user" {										//change owner of a marble
+	} else if function == "book_car" {									//create a new marble
+		return t.book_car(stub, args)
+	}else if function == "set_user" {										//change owner of a marble
 		res, err := t.set_user(stub, args)
 		cleanTrades(stub)													//lets make sure all open trades are still valid
 		return res, err	
@@ -466,6 +482,104 @@ func (t *SimpleChaincode) signup_driver(stub shim.ChaincodeStubInterface, args [
 
 	fmt.Println("- end signup driver")
 	return nil, nil
+}
+// ============================================================================================================================
+// Book_car - create a new booking, store into chaincode state
+// ============================================================================================================================
+func (t *SimpleChaincode) book_car(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var err error
+	
+	//   0       1       			2						 3
+	// "Mainak", "Mandal", "mainakmandal@hotmail.com", "password"
+	
+	bookacarname := args[0]
+	bookacaremail := args[1]
+	bookacarclass := args[2]
+	bookacarlocation := args[3]
+        bookacardroplocation := args[4]
+	bookacarpickupdate := args[5]
+	bookacarpickuptime := args[6]
+	bookacardropoffdate := args[7]
+	bookacardropofftime := args[8]
+	bookingid := args[9]	
+	
+	//This function is to check the login id of Driver
+	  PassAsbytes, err := stub.GetState(bookacaremail)
+	
+	  fmt.Println("Wrong ID Password-1: " +bookacaremail)
+	
+	  if err != nil {
+		 jsonResp := "{\"Error\":\"Failed to get state for " + bookacaremail + "\"}"
+		 return nil, errors.New(jsonResp)
+	     }
+	
+	  res := Driver{}
+	  json.Unmarshal(PassAsbytes,&res)
+	  fmt.Println("res.Email-2: " +res.Email)
+	
+	  if res.Email != bookacaremail{
+	    fmt.Println("Wrong ID Password-3: " +res.Email)
+	    
+	  }else {
+	    fmt.Println("Userid Password Matched-4: " +res.Email)
+	  
+	//-----------------------------------------------------------------
+	//build the Bookid json string manually
+	str := `{"bookacarname": "` + bookacarname + `", "bookacaremail": "` + bookacaremail + `", "bookacarclass": "` + bookacarclass + `","bookacarlocation": "` + bookacarlocation + `", "bookacardroplocation": "` + bookacardroplocation + `","bookacarpickupdate": "` + bookacarpickupdate + `", "bookacarpickuptime": "` + bookacarpickuptime + `", "bookacardropoffdate": "` + bookacardropoffdate + `", "bookacardropofftime": "` + bookacardropofftime + `","bookingid": "` + bookingid + `"}`
+	err = stub.PutState(bookacaremail+bookingid, []byte(str))									 
+	if err != nil {
+		return nil, err
+	}
+	
+	//-------------------------------------------------get the driver index
+	driversAsBytes, err := stub.GetState(driverIndexStr)
+	if err != nil {
+		return nil, errors.New("Failed to get driver index")
+	}
+	var driverIndex []string
+	json.Unmarshal(driversAsBytes, &driverIndex)							 
+	
+	//append
+	 driverIndex = append(driverIndex, bookingid)									 
+	 fmt.Println("! driver index: ", driverIndex)
+	 jsonAsBytes1, _ := json.Marshal(driverIndex)
+	 err = stub.PutState(driverIndexStr, jsonAsBytes1)	
+     //-------------------------------------------------Driver index end	 
+
+    
+	//++++++++Boooking id for driver details
+	driverAsBytes, err := stub.GetState(args[1])
+	if err != nil {
+		return nil, errors.New("Failed to get driver name")
+	}
+	res := Driver{}
+	json.Unmarshal(driverAsBytes, &res)
+	res.Bookingid = args[9]	 //change the user
+ 	jsonAsBytes, _ := json.Marshal(res)
+ 	err = stub.PutState(args[1], jsonAsBytes)
+	
+	if err != nil {
+		return nil, err
+	}
+	
+	//---------------------------get the driver index for Driver details
+	driversAsBytes1, err := stub.GetState(driverIndexStr)
+	if err != nil {
+		return nil, errors.New("Failed to get driver index")
+	}
+	var driverIndex1 []string
+	json.Unmarshal(driversAsBytes1, &driverIndex1)							 
+	
+	//append
+	 driverIndex1 = append(driverIndex1, bookacaremail)									 
+	 fmt.Println("! driver index: ", driverIndex1)
+	 jsonAsBytes3, _ := json.Marshal(driverIndex1)
+	 err = stub.PutState(driverIndexStr, jsonAsBytes3)		
+	 //----------------------------------------------------------------------
+	 
+	fmt.Println("- end signup driver")
+	}
+	return PassAsbytes, nil
 }
 // ============================================================================================================================
 // Set User Permission on Marble
