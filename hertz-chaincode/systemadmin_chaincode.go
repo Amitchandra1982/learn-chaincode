@@ -492,16 +492,16 @@ func (t *SimpleChaincode) book_car(stub shim.ChaincodeStubInterface, args []stri
 	//   0       1       			2						 3
 	// "Mainak", "Mandal", "mainakmandal@hotmail.com", "password"
 	
-	bookacarname := args[0]
+	//bookacarname := args[0]
 	bookacaremail := args[1]
-	bookacarclass := args[2]
-	bookacarlocation := args[3]
-        bookacardroplocation := args[4]
-	bookacarpickupdate := args[5]
-	bookacarpickuptime := args[6]
-	bookacardropoffdate := args[7]
-	bookacardropofftime := args[8]
-	bookingid := args[9]	
+	//bookacarclass := args[2]
+	//bookacarlocation := args[3]
+    //    bookacardroplocation := args[4]
+	//bookacarpickupdate := args[5]
+	//bookacarpickuptime := args[6]
+	//bookacardropoffdate := args[7]
+	//bookacardropofftime := args[8]
+	//bookingid := args[9]	
 	
 	//This function is to check the login id of Driver
 	  PassAsbytes, err := stub.GetState(bookacaremail)
@@ -522,62 +522,64 @@ func (t *SimpleChaincode) book_car(stub shim.ChaincodeStubInterface, args []stri
 	    
 	  }else {
 	    fmt.Println("Userid Password Matched-4: " +res.Email)
+		
+		
 	  
 	//-----------------------------------------------------------------
 	//build the Bookid json string manually
-	str := `{"bookacarname": "` + bookacarname + `", "bookacaremail": "` + bookacaremail + `", "bookacarclass": "` + bookacarclass + `","bookacarlocation": "` + bookacarlocation + `", "bookacardroplocation": "` + bookacardroplocation + `","bookacarpickupdate": "` + bookacarpickupdate + `", "bookacarpickuptime": "` + bookacarpickuptime + `", "bookacardropoffdate": "` + bookacardropoffdate + `", "bookacardropofftime": "` + bookacardropofftime + `","bookingid": "` + bookingid + `"}`
-	err = stub.PutState(bookacaremail+bookingid, []byte(str))									 
-	if err != nil {
-		return nil, err
-	}
+	//str := `{"bookacarname": "` + bookacarname + `", "bookacaremail": "` + bookacaremail + `", "bookacarclass": "` + bookacarclass + `","bookacarlocation": "` + bookacarlocation + `", "bookacardroplocation": "` + bookacardroplocation + `","bookacarpickupdate": "` + bookacarpickupdate + `", "bookacarpickuptime": "` + bookacarpickuptime + `", "bookacardropoffdate": "` + bookacardropoffdate + `", "bookacardropofftime": "` + bookacardropofftime + `","bookingid": "` + bookingid + `"}`
+	//err = stub.PutState(bookacaremail+bookingid, []byte(str))									 
+	//if err != nil {
+	//	return nil, err
+	//}
 	
 	//-------------------------------------------------get the driver index
-	driversAsBytes, err := stub.GetState(driverIndexStr)
-	if err != nil {
-		return nil, errors.New("Failed to get driver index")
-	}
-	var driverIndex []string
-	json.Unmarshal(driversAsBytes, &driverIndex)							 
+	//driversAsBytes, err := stub.GetState(driverIndexStr)
+	//if err != nil {
+	//	return nil, errors.New("Failed to get driver index")
+	//}
+	//var driverIndex []string
+	//json.Unmarshal(driversAsBytes, &driverIndex)							 
 	
 	//append
-	 driverIndex = append(driverIndex, bookingid)									 
-	 fmt.Println("! driver index: ", driverIndex)
-	 jsonAsBytes1, _ := json.Marshal(driverIndex)
-	 err = stub.PutState(driverIndexStr, jsonAsBytes1)	
+	 //driverIndex = append(driverIndex, bookingid)									 
+	 //fmt.Println("! driver index: ", driverIndex)
+	 //jsonAsBytes1, _ := json.Marshal(driverIndex)
+	 //err = stub.PutState(driverIndexStr, jsonAsBytes1)	
      //-------------------------------------------------Driver index end	 
 
     
 	//++++++++Boooking id for driver details
-	driverAsBytes, err := stub.GetState(args[1])
-	if err != nil {
-		return nil, errors.New("Failed to get driver name")
-	}
-	res := Driver{}
-	json.Unmarshal(driverAsBytes, &res)
-	res.Bookingid = args[9]	 //change the user
- 	jsonAsBytes, _ := json.Marshal(res)
- 	err = stub.PutState(args[1], jsonAsBytes)
+	//driverAsBytes, err := stub.GetState(args[1])
+	//if err != nil {
+		//return nil, errors.New("Failed to get driver name")
+	//}
+	//res := Driver{}
+	//json.Unmarshal(driverAsBytes, &res)
+	//res.Bookingid = args[9]	 //change the user
+ 	//jsonAsBytes, _ := json.Marshal(res)
+ 	//err = stub.PutState(args[1], jsonAsBytes)
 	
-	if err != nil {
-		return nil, err
-	}
+	//if err != nil {
+		//return nil, err
+	//}
 	
 	//---------------------------get the driver index for Driver details
-	driversAsBytes1, err := stub.GetState(driverIndexStr)
-	if err != nil {
-		return nil, errors.New("Failed to get driver index")
-	}
-	var driverIndex1 []string
-	json.Unmarshal(driversAsBytes1, &driverIndex1)							 
+	//driversAsBytes1, err := stub.GetState(driverIndexStr)
+	//if err != nil {
+	//	return nil, errors.New("Failed to get driver index")
+	//}
+	//var driverIndex1 []string
+	//json.Unmarshal(driversAsBytes1, &driverIndex1)							 
 	
 	//append
-	 driverIndex1 = append(driverIndex1, bookacaremail)									 
-	 fmt.Println("! driver index: ", driverIndex1)
-	 jsonAsBytes3, _ := json.Marshal(driverIndex1)
-	 err = stub.PutState(driverIndexStr, jsonAsBytes3)		
+	 //driverIndex1 = append(driverIndex1, bookacaremail)									 
+	 //fmt.Println("! driver index: ", driverIndex1)
+	 //jsonAsBytes3, _ := json.Marshal(driverIndex1)
+	 //err = stub.PutState(driverIndexStr, jsonAsBytes3)		
 	 //----------------------------------------------------------------------
 	 
-	fmt.Println("- end signup driver")
+	//fmt.Println("- end signup driver")
 	}
 	return PassAsbytes, nil
 }
